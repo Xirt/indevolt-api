@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Python API client for Indevolt devices"
 readme = "README.md"
 authors = [
-    {name = "xirtnl"}
+    {name = "A. Gideonse"}
 ]
 license = {text = "MIT"}
 requires-python = ">=3.11"
@@ -28,6 +28,11 @@ keywords = ["indevolt", "api", "async", "aiohttp"]
 dependencies = [
     "aiohttp>=3.9.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/xirtnl/indevolt-api"
+Repository = "https://github.com/xirtnl/indevolt-api"
+Issues = "https://github.com/xirtnl/indevolt-api/issues"
 
 [tool.setuptools]
 packages = ["indevolt_api"]
