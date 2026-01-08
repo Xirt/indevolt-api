@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "indevolt-api"
-version = "0.1.0"
+version = "0.1.1"
 description = "Python API client for Indevolt devices"
-readme = "README.md"
+readme = "readme.md"
 authors = [
     {name = "A. Gideonse"}
 ]
