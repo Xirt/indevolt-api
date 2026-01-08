@@ -105,7 +105,14 @@ class IndevoltAPI:
             async with self.session.get(url, timeout=self.timeout) as response:
                 if response.status != 200:
                     raise APIException(f"HTTP status error: {response.status}")
-                return await response.json()
+                data = await response.json()
+                
+                # Enrich response with device generation
+                if "device" in data and "type" in data["device"]:
+                    device_type = data["device"]["type"]
+                    data["device"]["generation"] = 2 if device_type in ["CMS-SP2000", "CMS-SF2000"] else 1
+                
+                return data
 
         except TimeoutError as err:
             raise TimeOutException("Sys.GetConfig Request timed out") from err
