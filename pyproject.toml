@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "indevolt-api"
-version = "0.1.1"
+version = "1.0.0"
 description = "Python API client for Indevolt devices"
 readme = "readme.md"
 authors = [
@@ -13,7 +13,7 @@ authors = [
 license = {text = "MIT"}
 requires-python = ">=3.11"
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
