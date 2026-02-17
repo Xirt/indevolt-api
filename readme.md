@@ -109,7 +109,7 @@ Initialize the API client.
 api = IndevoltAPI(host="192.168.1.100", port=8080, session=session)
 
 # Custom timeout
-api = IndevoltAPI(host="192.168.1.100", port=8080, session=session, timeout=10.0)
+api = IndevoltAPI(host="192.168.1.100", port=8080, session=session, timeout=15.0)
 ```
 
 #### `classmethod from_discovered_device(device: DiscoveredDevice, session: aiohttp.ClientSession, timeout: float = 10.0)`
@@ -156,7 +156,7 @@ data = await api.fetch_data("7101")
 data = await api.fetch_data(["7101", "1664", "7102"])
 ```
 
-#### `async set_data(t: str | int, v: Any) -> dict[str, Any]`
+#### `async set_data(t: str | int, v: Any) -> bool`
 
 Write data to the device.
 
@@ -167,7 +167,7 @@ Write data to the device.
 
 **Returns:**
 
-- Dictionary with device response
+- True on success, false otherwhise
 
 **Example:**
 

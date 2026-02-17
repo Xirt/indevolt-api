@@ -234,6 +234,7 @@ class IndevoltAPI:
 
         except TimeoutError as err:
             raise TimeOutException(f"{endpoint} Request timed out") from err
+
         except aiohttp.ClientError as err:
             raise APIException(f"{endpoint} Network error: {err}") from err
 
@@ -248,12 +249,12 @@ class IndevoltAPI:
         """
         if not isinstance(t, list):
             t = [t]
-            
+
         t_int = [int(item) for item in t]
 
         return await self._request("Indevolt.GetData", {"t": t_int})
 
-    async def set_data(self, t: str | int, v: Any) -> dict[str, Any]:
+    async def set_data(self, t: str | int, v: Any) -> bool:
         """Write/push data to the device.
 
         Args:
@@ -261,7 +262,7 @@ class IndevoltAPI:
             v: Value(s) to write (will be converted to list of integers if needed)
 
         Returns:
-            Device response dictionary
+            True on success, False otherwise
 
         Example:
             await api.set_data("47015", [2, 700, 5])
@@ -275,9 +276,17 @@ class IndevoltAPI:
         t_int = int(t)
         v_int = [int(item) for item in v]
 
-        return await self._request(
-            "Indevolt.SetData", {"f": 16, "t": t_int, "v": v_int}
-        )
+        try:
+            response = await self._request(
+                "Indevolt.SetData", {"f": 16, "t": t_int, "v": v_int}
+            )
+
+        except (TimeOutException, APIException, ValueError, KeyError) as err:
+            _LOGGER.error("SetData failed: %s", err)
+            return False
+
+        else:
+            return bool(response.get("result", False))
 
     async def get_config(self) -> dict[str, Any]:
         """Get system configuration from the device.
@@ -304,5 +313,6 @@ class IndevoltAPI:
 
         except TimeoutError as err:
             raise TimeOutException("Sys.GetConfig Request timed out") from err
+
         except aiohttp.ClientError as err:
             raise APIException(f"Sys.GetConfig Network error: {err}") from err
