@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "indevolt-api"
-version = "1.2.0"
+version = "1.2.1"
 description = "Python API client for Indevolt devices"
 readme = "readme.md"
 authors = [
@@ -30,9 +30,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/xirtnl/indevolt-api"
-Repository = "https://github.com/xirtnl/indevolt-api"
-Issues = "https://github.com/xirtnl/indevolt-api/issues"
+Homepage = "https://github.com/xirt/indevolt-api"
+Repository = "https://github.com/xirt/indevolt-api"
+Issues = "https://github.com/xirt/indevolt-api/issues"
 
 [tool.setuptools]
 packages = ["indevolt_api"]
