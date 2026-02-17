@@ -276,17 +276,11 @@ class IndevoltAPI:
         t_int = int(t)
         v_int = [int(item) for item in v]
 
-        try:
-            response = await self._request(
-                "Indevolt.SetData", {"f": 16, "t": t_int, "v": v_int}
-            )
+        response = await self._request(
+            "Indevolt.SetData", {"f": 16, "t": t_int, "v": v_int}
+        )
 
-        except (TimeOutException, APIException, ValueError, KeyError) as err:
-            _LOGGER.error("SetData failed: %s", err)
-            return False
-
-        else:
-            return bool(response.get("result", False))
+        return bool(response.get("result", False))
 
     async def get_config(self) -> dict[str, Any]:
         """Get system configuration from the device.
