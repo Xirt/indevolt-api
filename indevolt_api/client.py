@@ -248,8 +248,10 @@ class IndevoltAPI:
         """
         if not isinstance(t, list):
             t = [t]
+            
+        t_int = [int(item) for item in t]
 
-        return await self._request("Indevolt.GetData", {"t": t})
+        return await self._request("Indevolt.GetData", {"t": t_int})
 
     async def set_data(self, t: str | int, v: Any) -> dict[str, Any]:
         """Write/push data to the device.
