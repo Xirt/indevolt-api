@@ -26,17 +26,8 @@ POWER_LIMITS: dict[int, dict[str, int]] = {
 }
 
 
-class ChargePowerExceedsMaxError(Exception):
-    """Raised when requested charge power exceeds the device maximum."""
-
-    def __init__(self, power: int, max_power: int, generation: int) -> None:
-        self.power = power
-        self.max_power = max_power
-        self.generation = generation
-
-
-class DischargePowerExceedsMaxError(Exception):
-    """Raised when requested discharge power exceeds the device maximum."""
+class PowerExceedsMaxError(Exception):
+    """Raised when requested (dis)charge power exceeds the device maximum."""
 
     def __init__(self, power: int, max_power: int, generation: int) -> None:
         self.power = power
@@ -325,12 +316,12 @@ class IndevoltAPI:
             generation: Device hardware generation (1 or 2)
 
         Raises:
-            ChargePowerExceedsMaxError: If power exceeds the device maximum
+            PowerExceedsMaxError: If power exceeds the device maximum
             SocBelowMinimumError: If target_soc is below MINIMUM_SOC
         """
         max_power = POWER_LIMITS[generation]["max_charge_power"]
         if power > max_power:
-            raise ChargePowerExceedsMaxError(power, max_power, generation)
+            raise PowerExceedsMaxError(power, max_power, generation)
         if target_soc < MINIMUM_SOC:
             raise SocBelowMinimumError(target_soc)
 
@@ -345,12 +336,12 @@ class IndevoltAPI:
             generation: Device hardware generation (1 or 2)
 
         Raises:
-            DischargePowerExceedsMaxError: If power exceeds the device maximum
+            PowerExceedsMaxError: If power exceeds the device maximum
             SocBelowMinimumError: If target_soc is below MINIMUM_SOC
         """
         max_power = POWER_LIMITS[generation]["max_discharge_power"]
         if power > max_power:
-            raise DischargePowerExceedsMaxError(power, max_power, generation)
+            raise PowerExceedsMaxError(power, max_power, generation)
         if target_soc < MINIMUM_SOC:
             raise SocBelowMinimumError(target_soc)
 

@@ -2,27 +2,25 @@
 
 from .client import (
     APIException,
-    ChargePowerExceedsMaxError,
     DiscoveredDevice,
-    DischargePowerExceedsMaxError,
     IndevoltAPI,
     MINIMUM_SOC,
     POWER_LIMITS,
+    PowerExceedsMaxError,
     SocBelowMinimumError,
     TimeOutException,
     async_discover,
 )
 
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 
 __all__ = [
     "IndevoltAPI",
     "APIException",
-    "ChargePowerExceedsMaxError",
     "DiscoveredDevice",
-    "DischargePowerExceedsMaxError",
     "MINIMUM_SOC",
     "POWER_LIMITS",
+    "PowerExceedsMaxError",
     "SocBelowMinimumError",
     "TimeOutException",
     "async_discover",

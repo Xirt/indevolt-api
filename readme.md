@@ -209,7 +209,7 @@ Check that charge parameters do not exceed device limits. Raises an exception if
 
 **Raises:**
 
-- `ChargePowerExceedsMaxError`: If `power` exceeds the maximum for the given generation
+- `PowerExceedsMaxError`: If `power` exceeds the maximum for the given generation
 - `SocBelowMinimumError`: If `target_soc` is below `MINIMUM_SOC` (5%)
 
 **Example:**
@@ -220,7 +220,7 @@ generation = config["device"]["generation"]
 
 try:
     api.check_charge_limits(power=1000, target_soc=80, generation=generation)
-except ChargePowerExceedsMaxError as e:
+except PowerExceedsMaxError as e:
     print(f"Power {e.power}W exceeds max {e.max_power}W for gen {e.generation}")
 except SocBelowMinimumError as e:
     print(f"Target SOC {e.target_soc}% is below minimum {e.minimum_soc}%")
@@ -238,7 +238,7 @@ Check that discharge parameters do not exceed device limits. Raises an exception
 
 **Raises:**
 
-- `DischargePowerExceedsMaxError`: If `power` exceeds the maximum for the given generation
+- `PowerExceedsMaxError`: If `power` exceeds the maximum for the given generation
 - `SocBelowMinimumError`: If `target_soc` is below `MINIMUM_SOC` (5%)
 
 **Example:**
@@ -249,7 +249,7 @@ generation = config["device"]["generation"]
 
 try:
     api.check_discharge_limits(power=600, target_soc=10, generation=generation)
-except DischargePowerExceedsMaxError as e:
+except PowerExceedsMaxError as e:
     print(f"Power {e.power}W exceeds max {e.max_power}W for gen {e.generation}")
 except SocBelowMinimumError as e:
     print(f"Target SOC {e.target_soc}% is below minimum {e.minimum_soc}%")
@@ -307,15 +307,13 @@ Raised when there's a client error during API communication (network errors, HTT
 
 Raised when an API request times out (default timeout: 10 seconds).
 
-### `ChargePowerExceedsMaxError`
+### `ChargePowerExceedsMaxError` / `DischargePowerExceedsMaxError`
 
-Raised by `check_charge_limits()` when the requested charge power exceeds the device maximum.
+Replaced by `PowerExceedsMaxError`.
 
-**Attributes:** `power`, `max_power`, `generation`
+### `PowerExceedsMaxError`
 
-### `DischargePowerExceedsMaxError`
-
-Raised by `check_discharge_limits()` when the requested discharge power exceeds the device maximum.
+Raised by `check_charge_limits()` or `check_discharge_limits()` when the requested power exceeds the device maximum.
 
 **Attributes:** `power`, `max_power`, `generation`
 
