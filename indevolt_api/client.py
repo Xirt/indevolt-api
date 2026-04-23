@@ -18,6 +18,40 @@ class APIException(Exception):
     """Raised on client error during API call."""
 
 
+MINIMUM_SOC: int = 5
+
+POWER_LIMITS: dict[int, dict[str, int]] = {
+    1: {"max_discharge_power": 800, "max_charge_power": 1200},
+    2: {"max_discharge_power": 2400, "max_charge_power": 2400},
+}
+
+
+class ChargePowerExceedsMaxError(Exception):
+    """Raised when requested charge power exceeds the device maximum."""
+
+    def __init__(self, power: int, max_power: int, generation: int) -> None:
+        self.power = power
+        self.max_power = max_power
+        self.generation = generation
+
+
+class DischargePowerExceedsMaxError(Exception):
+    """Raised when requested discharge power exceeds the device maximum."""
+
+    def __init__(self, power: int, max_power: int, generation: int) -> None:
+        self.power = power
+        self.max_power = max_power
+        self.generation = generation
+
+
+class SocBelowMinimumError(Exception):
+    """Raised when target SOC is below the API's hard minimum."""
+
+    def __init__(self, target_soc: int) -> None:
+        self.target_soc = target_soc
+        self.minimum_soc = MINIMUM_SOC
+
+
 # Discovery configuration
 DISCOVERY_PORT = 10000
 BROADCAST_PORT = 8099
@@ -281,6 +315,44 @@ class IndevoltAPI:
         )
 
         return bool(response.get("result", False))
+
+    def check_charge_limits(self, power: int, target_soc: int, generation: int) -> None:
+        """Check that charge parameters do not exceed device limits.
+
+        Args:
+            power: Requested charge power in watts
+            target_soc: Target state of charge percentage
+            generation: Device hardware generation (1 or 2)
+
+        Raises:
+            ChargePowerExceedsMaxError: If power exceeds the device maximum
+            SocBelowMinimumError: If target_soc is below MINIMUM_SOC
+        """
+        max_power = POWER_LIMITS[generation]["max_charge_power"]
+        if power > max_power:
+            raise ChargePowerExceedsMaxError(power, max_power, generation)
+        if target_soc < MINIMUM_SOC:
+            raise SocBelowMinimumError(target_soc)
+
+    def check_discharge_limits(
+        self, power: int, target_soc: int, generation: int
+    ) -> None:
+        """Check that discharge parameters do not exceed device limits.
+
+        Args:
+            power: Requested discharge power in watts
+            target_soc: Target state of charge percentage
+            generation: Device hardware generation (1 or 2)
+
+        Raises:
+            DischargePowerExceedsMaxError: If power exceeds the device maximum
+            SocBelowMinimumError: If target_soc is below MINIMUM_SOC
+        """
+        max_power = POWER_LIMITS[generation]["max_discharge_power"]
+        if power > max_power:
+            raise DischargePowerExceedsMaxError(power, max_power, generation)
+        if target_soc < MINIMUM_SOC:
+            raise SocBelowMinimumError(target_soc)
 
     async def get_config(self) -> dict[str, Any]:
         """Get system configuration from the device.

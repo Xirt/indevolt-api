@@ -197,6 +197,64 @@ config = await api.get_config()
 print(config)
 ```
 
+#### `check_charge_limits(power: int, target_soc: int, generation: int) -> None`
+
+Check that charge parameters do not exceed device limits. Raises an exception if any boundary is violated.
+
+**Parameters:**
+
+- `power` (int): Requested charge power in watts
+- `target_soc` (int): Target state of charge percentage
+- `generation` (int): Device hardware generation (`1` or `2`), available from `get_config()` under `device.generation`
+
+**Raises:**
+
+- `ChargePowerExceedsMaxError`: If `power` exceeds the maximum for the given generation
+- `SocBelowMinimumError`: If `target_soc` is below `MINIMUM_SOC` (5%)
+
+**Example:**
+
+```python
+config = await api.get_config()
+generation = config["device"]["generation"]
+
+try:
+    api.check_charge_limits(power=1000, target_soc=80, generation=generation)
+except ChargePowerExceedsMaxError as e:
+    print(f"Power {e.power}W exceeds max {e.max_power}W for gen {e.generation}")
+except SocBelowMinimumError as e:
+    print(f"Target SOC {e.target_soc}% is below minimum {e.minimum_soc}%")
+```
+
+#### `check_discharge_limits(power: int, target_soc: int, generation: int) -> None`
+
+Check that discharge parameters do not exceed device limits. Raises an exception if any boundary is violated.
+
+**Parameters:**
+
+- `power` (int): Requested discharge power in watts
+- `target_soc` (int): Target state of charge percentage
+- `generation` (int): Device hardware generation (`1` or `2`), available from `get_config()` under `device.generation`
+
+**Raises:**
+
+- `DischargePowerExceedsMaxError`: If `power` exceeds the maximum for the given generation
+- `SocBelowMinimumError`: If `target_soc` is below `MINIMUM_SOC` (5%)
+
+**Example:**
+
+```python
+config = await api.get_config()
+generation = config["device"]["generation"]
+
+try:
+    api.check_discharge_limits(power=600, target_soc=10, generation=generation)
+except DischargePowerExceedsMaxError as e:
+    print(f"Power {e.power}W exceeds max {e.max_power}W for gen {e.generation}")
+except SocBelowMinimumError as e:
+    print(f"Target SOC {e.target_soc}% is below minimum {e.minimum_soc}%")
+```
+
 ### async_discover(timeout: float = 5.0) -> list[DiscoveredDevice]
 
 Discover Indevolt devices on the local network using UDP broadcast.
@@ -239,7 +297,7 @@ if device.name:
 
 ## Exception Handling
 
-The library provides two custom exceptions:
+The library provides custom exceptions for API errors and limit violations.
 
 ### `APIException`
 
@@ -248,6 +306,24 @@ Raised when there's a client error during API communication (network errors, HTT
 ### `TimeOutException`
 
 Raised when an API request times out (default timeout: 10 seconds).
+
+### `ChargePowerExceedsMaxError`
+
+Raised by `check_charge_limits()` when the requested charge power exceeds the device maximum.
+
+**Attributes:** `power`, `max_power`, `generation`
+
+### `DischargePowerExceedsMaxError`
+
+Raised by `check_discharge_limits()` when the requested discharge power exceeds the device maximum.
+
+**Attributes:** `power`, `max_power`, `generation`
+
+### `SocBelowMinimumError`
+
+Raised by `check_charge_limits()` or `check_discharge_limits()` when the target SOC is below the hard minimum of 5%.
+
+**Attributes:** `target_soc`, `minimum_soc`
 
 **Example:**
 
