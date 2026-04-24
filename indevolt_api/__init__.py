@@ -4,22 +4,38 @@ from .client import (
     APIException,
     DiscoveredDevice,
     IndevoltAPI,
-    MINIMUM_SOC,
-    POWER_LIMITS,
     PowerExceedsMaxError,
     SocBelowMinimumError,
     TimeOutException,
     async_discover,
 )
+from .const import (
+    DEVICE_LIMITS,
+    SET_REALTIME_ACTION,
+    IndevoltBattery,
+    IndevoltConfig,
+    IndevoltEnergyMode,
+    IndevoltGrid,
+    IndevoltRealtimeAction,
+    IndevoltSolar,
+    IndevoltSystem,
+)
 
-__version__ = "1.3.1"
+__version__ = "1.4.0"
 
 __all__ = [
     "IndevoltAPI",
     "APIException",
     "DiscoveredDevice",
-    "MINIMUM_SOC",
-    "POWER_LIMITS",
+    "DEVICE_LIMITS",
+    "SET_REALTIME_ACTION",
+    "IndevoltBattery",
+    "IndevoltConfig",
+    "IndevoltEnergyMode",
+    "IndevoltGrid",
+    "IndevoltRealtimeAction",
+    "IndevoltSolar",
+    "IndevoltSystem",
     "PowerExceedsMaxError",
     "SocBelowMinimumError",
     "TimeOutException",

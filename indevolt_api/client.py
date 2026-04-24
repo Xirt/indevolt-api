@@ -6,6 +6,13 @@ import logging
 from typing import Any
 
 import aiohttp
+from aiohttp import ClientError
+
+from indevolt_api.const import (
+    DEVICE_LIMITS,
+    IndevoltRealtimeAction,
+    SET_REALTIME_ACTION,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -16,14 +23,6 @@ class TimeOutException(Exception):
 
 class APIException(Exception):
     """Raised on client error during API call."""
-
-
-MINIMUM_SOC: int = 5
-
-POWER_LIMITS: dict[int, dict[str, int]] = {
-    1: {"max_discharge_power": 800, "max_charge_power": 1200},
-    2: {"max_discharge_power": 2400, "max_charge_power": 2400},
-}
 
 
 class PowerExceedsMaxError(Exception):
@@ -38,9 +37,10 @@ class PowerExceedsMaxError(Exception):
 class SocBelowMinimumError(Exception):
     """Raised when target SOC is below the API's hard minimum."""
 
-    def __init__(self, target_soc: int) -> None:
+    def __init__(self, target_soc: int, minimum_soc: int, generation: int) -> None:
         self.target_soc = target_soc
-        self.minimum_soc = MINIMUM_SOC
+        self.minimum_soc = minimum_soc
+        self.generation = generation
 
 
 # Discovery configuration
@@ -307,6 +307,52 @@ class IndevoltAPI:
 
         return bool(response.get("result", False))
 
+    async def stop(self) -> bool:
+        """Stop any active real-time charge or discharge action.
+
+        Returns True on success, False if the command was rejected.
+        """
+        try:
+            return await self.set_data(
+                str(SET_REALTIME_ACTION),
+                [IndevoltRealtimeAction.STOP, 0, 0],
+            )
+        except (TimeOutException, ClientError, ConnectionError, OSError) as err:
+            _LOGGER.debug("stop command failed: %s", err)
+            return False
+
+    async def charge(self, power: int, target_soc: int) -> bool:
+        """Send a real-time charge command to the device.
+
+        Returns True on success, False if the command was rejected.
+        Raises ValueError if power or target_soc are out of range.
+        """
+        self.check_charge_limits(power, target_soc, self.generation)
+        try:
+            return await self.set_data(
+                str(SET_REALTIME_ACTION),
+                [IndevoltRealtimeAction.CHARGE, power, target_soc],
+            )
+        except (TimeOutException, ClientError, ConnectionError, OSError) as err:
+            _LOGGER.debug("charge command failed: %s", err)
+            return False
+
+    async def discharge(self, power: int, target_soc: int) -> bool:
+        """Send a real-time discharge command to the device.
+
+        Returns True on success, False if the command was rejected.
+        Raises ValueError if power or target_soc are out of range.
+        """
+        self.check_discharge_limits(power, target_soc, self.generation)
+        try:
+            return await self.set_data(
+                str(SET_REALTIME_ACTION),
+                [IndevoltRealtimeAction.DISCHARGE, power, target_soc],
+            )
+        except (TimeOutException, ClientError, ConnectionError, OSError) as err:
+            _LOGGER.debug("discharge command failed: %s", err)
+            return False
+
     def check_charge_limits(self, power: int, target_soc: int, generation: int) -> None:
         """Check that charge parameters do not exceed device limits.
 
@@ -317,13 +363,15 @@ class IndevoltAPI:
 
         Raises:
             PowerExceedsMaxError: If power exceeds the device maximum
-            SocBelowMinimumError: If target_soc is below MINIMUM_SOC
+            SocBelowMinimumError: If target_soc is below the device minimum
         """
-        max_power = POWER_LIMITS[generation]["max_charge_power"]
+        max_power = DEVICE_LIMITS[generation]["max_charge_power"]
         if power > max_power:
             raise PowerExceedsMaxError(power, max_power, generation)
-        if target_soc < MINIMUM_SOC:
-            raise SocBelowMinimumError(target_soc)
+
+        min_soc = DEVICE_LIMITS[generation]["minimum_soc"]
+        if target_soc < min_soc:
+            raise SocBelowMinimumError(target_soc, min_soc, generation)
 
     def check_discharge_limits(
         self, power: int, target_soc: int, generation: int
@@ -337,13 +385,15 @@ class IndevoltAPI:
 
         Raises:
             PowerExceedsMaxError: If power exceeds the device maximum
-            SocBelowMinimumError: If target_soc is below MINIMUM_SOC
+            SocBelowMinimumError: If target_soc is below the device minimum
         """
-        max_power = POWER_LIMITS[generation]["max_discharge_power"]
+        max_power = DEVICE_LIMITS[generation]["max_discharge_power"]
         if power > max_power:
             raise PowerExceedsMaxError(power, max_power, generation)
-        if target_soc < MINIMUM_SOC:
-            raise SocBelowMinimumError(target_soc)
+
+        min_soc = DEVICE_LIMITS[generation]["minimum_soc"]
+        if target_soc < min_soc:
+            raise SocBelowMinimumError(target_soc, min_soc, generation)
 
     async def get_config(self) -> dict[str, Any]:
         """Get system configuration from the device.

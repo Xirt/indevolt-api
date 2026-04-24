@@ -1,0 +1,142 @@
+from enum import IntEnum
+
+SET_REALTIME_ACTION = 47015
+
+DEVICE_LIMITS: dict[int, dict[str, int]] = {
+    1: {"max_discharge_power": 800, "max_charge_power": 1200, "minimum_soc": 5},
+    2: {"max_discharge_power": 2400, "max_charge_power": 2400, "minimum_soc": 5},
+}
+
+
+class IndevoltRealtimeAction(IntEnum):
+    """Actions for real-time control mode."""
+
+    STOP = 0
+    CHARGE = 1
+    DISCHARGE = 2
+
+
+class IndevoltEnergyMode(IntEnum):
+    """Energy mode values for the device."""
+
+    OUTDOOR_PORTABLE = 0
+    SELF_CONSUMED_PRIORITIZED = 1
+    REAL_TIME_CONTROL = 4
+    CHARGE_DISCHARGE_SCHEDULE = 5
+
+
+class IndevoltConfig(IntEnum):
+    """Register keys for configurable device settings (read and write)."""
+
+    WRITE_REALTIME_ACTION = 47015
+    WRITE_ENERGY_MODE = 47005
+    WRITE_DISCHARGE_LIMIT = 1142
+    WRITE_MAX_AC_OUTPUT_POWER = 1147
+    WRITE_INVERTER_INPUT_LIMIT = 1138
+    WRITE_FEEDIN_POWER_LIMIT = 1146
+    WRITE_GRID_CHARGING = 1143
+    WRITE_LIGHT = 7265
+    WRITE_BYPASS = 7266
+
+    READ_ENERGY_MODE = 7101
+    READ_DISCHARGE_LIMIT = 6105
+    READ_MAX_AC_OUTPUT_POWER = 11011
+    READ_INVERTER_INPUT_LIMIT = 11009
+    READ_FEEDIN_POWER_LIMIT = 11010
+    READ_GRID_CHARGING = 2618
+    READ_LIGHT = 7171
+    READ_BYPASS = 680
+
+
+class IndevoltSystem(IntEnum):
+    """Register keys for system-level AC power and energy."""
+
+    OPERATING_MODE = 606
+    INPUT_POWER = 2101
+    OUTPUT_POWER = 2108
+    BYPASS_POWER = 667
+    TOTAL_INPUT_ENERGY = 2107
+    TOTAL_OUTPUT_ENERGY = 2104
+    OFF_GRID_OUTPUT_ENERGY = 2105
+    BYPASS_INPUT_ENERGY = 11034
+
+
+class IndevoltGrid(IntEnum):
+    """Register keys for grid and utility meter data."""
+
+    METER_POWER_GEN1 = 21028
+    METER_POWER_GEN2 = 11016
+    VOLTAGE = 2600
+    FREQUENCY = 2612
+
+
+class IndevoltBattery(IntEnum):
+    """Register keys for battery system parameters."""
+
+    POWER = 6000
+    CHARGE_DISCHARGE_STATE = 6001
+    SOC = 6002
+    DAILY_CHARGING_ENERGY = 6004
+    DAILY_DISCHARGING_ENERGY = 6005
+    TOTAL_CHARGING_ENERGY = 6006
+    TOTAL_DISCHARGING_ENERGY = 6007
+    RATED_CAPACITY_GEN2 = 142
+
+    MAIN_SERIAL_NUMBER = 9008
+    MAIN_SOC = 9000
+    MAIN_TEMPERATURE = 9012
+    MAIN_VOLTAGE = 9004
+    MAIN_CURRENT = 9013
+
+    PACK_1_SERIAL_NUMBER = 9032
+    PACK_1_SOC = 9016
+    PACK_1_TEMPERATURE = 9030
+    PACK_1_VOLTAGE = 9020
+    PACK_1_CURRENT = 19173
+
+    PACK_2_SERIAL_NUMBER = 9051
+    PACK_2_SOC = 9035
+    PACK_2_TEMPERATURE = 9049
+    PACK_2_VOLTAGE = 9039
+    PACK_2_CURRENT = 19174
+
+    PACK_3_SERIAL_NUMBER = 9070
+    PACK_3_SOC = 9054
+    PACK_3_TEMPERATURE = 9068
+    PACK_3_VOLTAGE = 9058
+    PACK_3_CURRENT = 19175
+
+    PACK_4_SERIAL_NUMBER = 9165
+    PACK_4_SOC = 9149
+    PACK_4_TEMPERATURE = 9163
+    PACK_4_VOLTAGE = 9153
+    PACK_4_CURRENT = 19176
+
+    PACK_5_SERIAL_NUMBER = 9218
+    PACK_5_SOC = 9202
+    PACK_5_TEMPERATURE = 9216
+    PACK_5_VOLTAGE = 9206
+    PACK_5_CURRENT = 19177
+
+
+class IndevoltSolar(IntEnum):
+    """Register keys for PV/solar input and output parameters."""
+
+    DC_OUTPUT_POWER = 1501
+    DAILY_PRODUCTION = 1502
+    CUMULATIVE_PRODUCTION = 1505
+
+    DC_INPUT_VOLTAGE_1 = 1600
+    DC_INPUT_VOLTAGE_2 = 1601
+    DC_INPUT_VOLTAGE_3 = 1602
+    DC_INPUT_VOLTAGE_4 = 1603
+
+    DC_INPUT_CURRENT_1 = 1632
+    DC_INPUT_CURRENT_2 = 1633
+    DC_INPUT_CURRENT_3 = 1634
+    DC_INPUT_CURRENT_4 = 1635
+
+    DC_INPUT_POWER_1 = 1664
+    DC_INPUT_POWER_2 = 1665
+    DC_INPUT_POWER_3 = 1666
+    DC_INPUT_POWER_4 = 1667

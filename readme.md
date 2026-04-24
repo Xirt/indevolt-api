@@ -210,7 +210,7 @@ Check that charge parameters do not exceed device limits. Raises an exception if
 **Raises:**
 
 - `PowerExceedsMaxError`: If `power` exceeds the maximum for the given generation
-- `SocBelowMinimumError`: If `target_soc` is below `MINIMUM_SOC` (5%)
+- `SocBelowMinimumError`: If `target_soc` is below the minimum SOC (5%)
 
 **Example:**
 
@@ -239,7 +239,7 @@ Check that discharge parameters do not exceed device limits. Raises an exception
 **Raises:**
 
 - `PowerExceedsMaxError`: If `power` exceeds the maximum for the given generation
-- `SocBelowMinimumError`: If `target_soc` is below `MINIMUM_SOC` (5%)
+- `SocBelowMinimumError`: If `target_soc` is below the minimum SOC (5%)
 
 **Example:**
 
@@ -255,7 +255,7 @@ except SocBelowMinimumError as e:
     print(f"Target SOC {e.target_soc}% is below minimum {e.minimum_soc}%")
 ```
 
-### async_discover(timeout: float = 5.0) -> list[DiscoveredDevice]
+### async_discover(timeout: float = 3.0) -> list[DiscoveredDevice]
 
 Discover Indevolt devices on the local network using UDP broadcast.
 
@@ -307,10 +307,6 @@ Raised when there's a client error during API communication (network errors, HTT
 
 Raised when an API request times out (default timeout: 10 seconds).
 
-### `ChargePowerExceedsMaxError` / `DischargePowerExceedsMaxError`
-
-Replaced by `PowerExceedsMaxError`.
-
 ### `PowerExceedsMaxError`
 
 Raised by `check_charge_limits()` or `check_discharge_limits()` when the requested power exceeds the device maximum.
@@ -341,6 +337,90 @@ except APIException as e:
 ```python
 # Increase timeout if needed (e.g., for slower networks)
 api = IndevoltAPI(host="192.168.1.100", port=8080, session=session, timeout=10.0)
+```
+
+## Constants and Enums
+
+All register keys and action values are available as typed `IntEnum` classes, importable directly from `indevolt_api`.
+
+### `IndevoltConfig`
+
+Register keys for configurable device settings (read and write).
+
+```python
+from indevolt_api import IndevoltConfig
+
+# Write registers
+IndevoltConfig.WRITE_ENERGY_MODE      # 47005
+IndevoltConfig.WRITE_DISCHARGE_LIMIT  # 1142
+# ... and more
+
+# Read registers
+IndevoltConfig.READ_ENERGY_MODE       # 7101
+IndevoltConfig.READ_DISCHARGE_LIMIT   # 6105
+# ... and more
+```
+
+### `IndevoltRealtimeAction`
+
+Action values for real-time control mode, used with `SET_REALTIME_ACTION`.
+
+```python
+from indevolt_api import IndevoltRealtimeAction
+
+IndevoltRealtimeAction.STOP       # 0
+IndevoltRealtimeAction.CHARGE     # 1
+IndevoltRealtimeAction.DISCHARGE  # 2
+```
+
+### `IndevoltEnergyMode`
+
+Energy mode values for `IndevoltConfig.WRITE_ENERGY_MODE`.
+
+```python
+from indevolt_api import IndevoltEnergyMode
+
+IndevoltEnergyMode.OUTDOOR_PORTABLE
+IndevoltEnergyMode.SELF_CONSUMED_PRIORITIZED
+IndevoltEnergyMode.REAL_TIME_CONTROL
+IndevoltEnergyMode.CHARGE_DISCHARGE_SCHEDULE
+```
+
+### `IndevoltBattery`, `IndevoltSystem`, `IndevoltGrid`, `IndevoltSolar`
+
+Register key enums for reading battery, system-level, grid, and solar data points.
+
+```python
+from indevolt_api import IndevoltBattery, IndevoltSystem, IndevoltGrid, IndevoltSolar
+
+data = await api.fetch_data([
+    IndevoltBattery.SOC,
+    IndevoltBattery.POWER,
+    IndevoltSystem.OUTPUT_POWER,
+    IndevoltGrid.METER_POWER_GEN2,
+    IndevoltSolar.DC_INPUT_POWER_1,
+])
+```
+
+### `SET_REALTIME_ACTION`
+
+The register key used to send real-time charge/discharge commands to the device.
+
+```python
+from indevolt_api import SET_REALTIME_ACTION
+
+await api.set_data(SET_REALTIME_ACTION, [IndevoltRealtimeAction.CHARGE, 700, 80])
+```
+
+### `DEVICE_LIMITS`
+
+Dictionary of per-generation device limits used by `check_charge_limits()` and `check_discharge_limits()`.
+
+```python
+from indevolt_api import DEVICE_LIMITS
+
+print(DEVICE_LIMITS[1])  # {'max_discharge_power': 800, 'max_charge_power': 1200, 'minimum_soc': 5}
+print(DEVICE_LIMITS[2])  # {'max_discharge_power': 2400, 'max_charge_power': 2400, 'minimum_soc': 5}
 ```
 
 ## Requirements
