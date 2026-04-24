@@ -8,7 +8,7 @@ from typing import Any
 import aiohttp
 from aiohttp import ClientError
 
-from indevolt_api.const import (
+from .const import (
     DEVICE_LIMITS,
     IndevoltRealtimeAction,
     SET_REALTIME_ACTION,
