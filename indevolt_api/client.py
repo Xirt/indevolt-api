@@ -327,7 +327,6 @@ class IndevoltAPI:
         Returns True on success, False if the command was rejected.
         Raises ValueError if power or target_soc are out of range.
         """
-        self.check_charge_limits(power, target_soc, self.generation)
         try:
             return await self.set_data(
                 str(SET_REALTIME_ACTION),
@@ -343,7 +342,6 @@ class IndevoltAPI:
         Returns True on success, False if the command was rejected.
         Raises ValueError if power or target_soc are out of range.
         """
-        self.check_discharge_limits(power, target_soc, self.generation)
         try:
             return await self.set_data(
                 str(SET_REALTIME_ACTION),

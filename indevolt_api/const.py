@@ -28,7 +28,6 @@ class IndevoltEnergyMode(IntEnum):
 class IndevoltConfig(IntEnum):
     """Register keys for configurable device settings (read and write)."""
 
-    WRITE_REALTIME_ACTION = 47015
     WRITE_ENERGY_MODE = 47005
     WRITE_DISCHARGE_LIMIT = 1142
     WRITE_MAX_AC_OUTPUT_POWER = 1147
