@@ -3,7 +3,6 @@
 import asyncio
 import json
 import logging
-from enum import IntEnum
 from typing import Any
 
 import aiohttp
@@ -16,26 +15,6 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-
-class IndevoltData(dict[str, Any]):
-    def __getitem__(self, key: str | IntEnum) -> Any:
-        if isinstance(key, IntEnum):
-            key = str(int(key))
-
-        return super().__getitem__(key)
-
-    def get(self, key: str | IntEnum, default=None) -> Any:
-        if isinstance(key, IntEnum):
-            key = str(int(key))
-
-        return super().get(key, default)
-
-    def __contains__(self, key: object) -> bool:
-        if isinstance(key, IntEnum):
-            key = str(int(key))
-
-        return super().__contains__(key)
 
 
 class TimeOutException(Exception):
@@ -284,22 +263,24 @@ class IndevoltAPI:
         except aiohttp.ClientError as err:
             raise APIException(f"{endpoint} Network error: {err}") from err
 
-    async def fetch_data(self, t: Any) -> dict[str, Any]:
+    async def fetch_data(self, t: str | list[str]) -> dict[str, Any]:
         """Fetch raw JSON data from the device.
 
         Args:
-            t: cJson Point(s) of the API to retrieve (e.g., ["7101", "1664"] or "7101")
+            t: cJson Point(s) to retrieve. Accepts a StrEnum member, a raw string key,
+               or a list of either (e.g. [IndevoltSystem.INPUT_POWER, IndevoltGrid.VOLTAGE]).
 
         Returns:
-            Device response dictionary with cJson Point data
+            Device response dictionary whose keys are strings matching the requested
+            cJson Points. StrEnum members can be used directly to index the result
+            (e.g. data[IndevoltSystem.INPUT_POWER]).
         """
         if not isinstance(t, list):
             t = [t]
 
         t_int = [int(item) for item in t]
 
-        result = await self._request("Indevolt.GetData", {"t": t_int})
-        return IndevoltData(result)
+        return await self._request("Indevolt.GetData", {"t": t_int})
 
     async def set_data(self, t: str | int, v: Any) -> bool:
         """Write/push data to the device.
@@ -312,9 +293,8 @@ class IndevoltAPI:
             True on success, False otherwise
 
         Example:
-            await api.set_data("47015", [2, 700, 5])
-            await api.set_data("47016", 100)
-            await api.set_data(47016, "100")
+            await api.set_data(SET_REALTIME_ACTION, [IndevoltRealtimeAction.CHARGE, 700, 5])
+            await api.set_data(IndevoltConfig.WRITE_ENERGY_MODE, IndevoltEnergyMode.SELF_CONSUMED_PRIORITIZED)
         """
         # Convert v to list if not already
         if not isinstance(v, list):
@@ -336,7 +316,7 @@ class IndevoltAPI:
         """
         try:
             return await self.set_data(
-                str(SET_REALTIME_ACTION),
+                SET_REALTIME_ACTION,
                 [IndevoltRealtimeAction.STOP, 0, 0],
             )
         except (TimeOutException, ClientError, ConnectionError, OSError) as err:
@@ -351,7 +331,7 @@ class IndevoltAPI:
         """
         try:
             return await self.set_data(
-                str(SET_REALTIME_ACTION),
+                SET_REALTIME_ACTION,
                 [IndevoltRealtimeAction.CHARGE, power, target_soc],
             )
         except (TimeOutException, ClientError, ConnectionError, OSError) as err:
@@ -366,7 +346,7 @@ class IndevoltAPI:
         """
         try:
             return await self.set_data(
-                str(SET_REALTIME_ACTION),
+                SET_REALTIME_ACTION,
                 [IndevoltRealtimeAction.DISCHARGE, power, target_soc],
             )
         except (TimeOutException, ClientError, ConnectionError, OSError) as err:

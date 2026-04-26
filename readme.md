@@ -20,7 +20,14 @@ pip install indevolt-api
 ```python
 import asyncio
 import aiohttp
-from indevolt_api import IndevoltAPI
+from indevolt_api import (
+    IndevoltAPI,
+    IndevoltConfig,
+    IndevoltEnergyMode,
+    IndevoltSystem,
+    SET_REALTIME_ACTION,
+    IndevoltRealtimeAction,
+)
 
 async def main():
     async with aiohttp.ClientSession() as session:
@@ -30,17 +37,16 @@ async def main():
         config = await api.get_config()
         print(f"Device config: {config}")
 
-        # Fetch data from specific cJson points
-        data = await api.fetch_data(["7101", "1664"])
-        print(f"Data: {data}")
+        # Fetch data using StrEnum members — response keys are the same strings
+        data = await api.fetch_data([IndevoltConfig.READ_ENERGY_MODE, IndevoltSystem.INPUT_POWER])
+        print(f"Energy mode: {data[IndevoltConfig.READ_ENERGY_MODE]}")
+        print(f"Input power: {data[IndevoltSystem.INPUT_POWER]}")
 
-        # Write data (single data point) to device
-        response = await api.set_data("1142", 50)
-        print(f"Set data response: {response}")
+        # Write a single value
+        await api.set_data(IndevoltConfig.WRITE_DISCHARGE_LIMIT, 50)
 
-        # Write data (multiple data points) to device
-        response = await api.set_data("47015", [2, 700, 5])
-        print(f"Set data response: {response}")
+        # Write a real-time charge command
+        await api.set_data(SET_REALTIME_ACTION, [IndevoltRealtimeAction.CHARGE, 700, 80])
 
 asyncio.run(main())
 ```
@@ -57,7 +63,7 @@ import aiohttp
 from indevolt_api import async_discover, IndevoltAPI
 
 async def main():
-    # Discover devices on the network (overrides default 5-second timeout)
+    # Discover devices on the network (overrides default 3-second timeout)
     devices = await async_discover(timeout=3.0)
 
     if not devices:
@@ -140,20 +146,29 @@ Fetch data from the device.
 
 **Parameters:**
 
-- `t`: Single cJson point or list of cJson points to retrieve (e.g., `"7101"` or `["7101", "1664"]`)
+- `t`: A `StrEnum` member, a raw string key, or a list of either
 
 **Returns:**
 
-- Dictionary with device response containing cJson point data
+- Dictionary whose keys are strings matching the requested cJson points. `StrEnum` members can be used directly to index the result.
 
 **Example:**
 
 ```python
+from indevolt_api import IndevoltSystem, IndevoltGrid, IndevoltBattery
+
 # Single point
-data = await api.fetch_data("7101")
+data = await api.fetch_data(IndevoltBattery.SOC)
+print(data[IndevoltBattery.SOC])
 
 # Multiple points
-data = await api.fetch_data(["7101", "1664", "7102"])
+data = await api.fetch_data([
+    IndevoltSystem.INPUT_POWER,
+    IndevoltSystem.OUTPUT_POWER,
+    IndevoltGrid.VOLTAGE,
+])
+print(data[IndevoltSystem.INPUT_POWER])
+print(data[IndevoltGrid.VOLTAGE])
 ```
 
 #### `async set_data(t: str | int, v: Any) -> bool`
@@ -167,19 +182,73 @@ Write data to the device.
 
 **Returns:**
 
-- True on success, false otherwhise
+- `True` on success, `False` otherwise
 
 **Example:**
 
 ```python
+from indevolt_api import IndevoltConfig, IndevoltEnergyMode, SET_REALTIME_ACTION, IndevoltRealtimeAction
+
 # Single value
-await api.set_data("47016", 100)
+await api.set_data(IndevoltConfig.WRITE_DISCHARGE_LIMIT, 50)
 
-# Multiple values
-await api.set_data("47015", [2, 700, 5])
+# Real-time command with multiple values
+await api.set_data(SET_REALTIME_ACTION, [IndevoltRealtimeAction.CHARGE, 700, 80])
 
-# String or int identifiers
-await api.set_data(47016, "100")
+# Set energy mode
+await api.set_data(IndevoltConfig.WRITE_ENERGY_MODE, IndevoltEnergyMode.SELF_CONSUMED_PRIORITIZED)
+```
+
+#### `async stop() -> bool`
+
+Stop any active real-time charge or discharge action.
+
+**Returns:**
+
+- `True` on success, `False` if the command was rejected or a connection error occurred
+
+**Example:**
+
+```python
+succeeded = await api.stop()
+```
+
+#### `async charge(power: int, target_soc: int) -> bool`
+
+Send a real-time charge command to the device.
+
+**Parameters:**
+
+- `power` (int): Charge power in watts
+- `target_soc` (int): Target state of charge percentage
+
+**Returns:**
+
+- `True` on success, `False` if the command was rejected or a connection error occurred
+
+**Example:**
+
+```python
+succeeded = await api.charge(power=700, target_soc=80)
+```
+
+#### `async discharge(power: int, target_soc: int) -> bool`
+
+Send a real-time discharge command to the device.
+
+**Parameters:**
+
+- `power` (int): Discharge power in watts
+- `target_soc` (int): Target state of charge percentage
+
+**Returns:**
+
+- `True` on success, `False` if the command was rejected or a connection error occurred
+
+**Example:**
+
+```python
+succeeded = await api.discharge(power=400, target_soc=20)
 ```
 
 #### `async get_config() -> dict[str, Any]`
@@ -261,7 +330,7 @@ Discover Indevolt devices on the local network using UDP broadcast.
 
 **Parameters:**
 
-- `timeout` (float): Discovery timeout in seconds (default: 5.0 for local discovery)
+- `timeout` (float): Discovery timeout in seconds (default: 3.0)
 
 **Returns:**
 
@@ -341,7 +410,7 @@ api = IndevoltAPI(host="192.168.1.100", port=8080, session=session, timeout=10.0
 
 ## Constants and Enums
 
-All register keys and action values are available as typed `IntEnum` classes, importable directly from `indevolt_api`.
+All register keys and action values are available as typed `StrEnum` classes, importable directly from `indevolt_api`. Because `StrEnum` members are strings, they can be passed directly to `fetch_data()` and `set_data()`, and used to index the response dictionary — no manual conversion needed.
 
 ### `IndevoltConfig`
 
@@ -351,13 +420,13 @@ Register keys for configurable device settings (read and write).
 from indevolt_api import IndevoltConfig
 
 # Write registers
-IndevoltConfig.WRITE_ENERGY_MODE      # 47005
-IndevoltConfig.WRITE_DISCHARGE_LIMIT  # 1142
+IndevoltConfig.WRITE_ENERGY_MODE      # "47005"
+IndevoltConfig.WRITE_DISCHARGE_LIMIT  # "1142"
 # ... and more
 
 # Read registers
-IndevoltConfig.READ_ENERGY_MODE       # 7101
-IndevoltConfig.READ_DISCHARGE_LIMIT   # 6105
+IndevoltConfig.READ_ENERGY_MODE       # "7101"
+IndevoltConfig.READ_DISCHARGE_LIMIT   # "6105"
 # ... and more
 ```
 
@@ -368,9 +437,9 @@ Action values for real-time control mode, used with `SET_REALTIME_ACTION`.
 ```python
 from indevolt_api import IndevoltRealtimeAction
 
-IndevoltRealtimeAction.STOP       # 0
-IndevoltRealtimeAction.CHARGE     # 1
-IndevoltRealtimeAction.DISCHARGE  # 2
+IndevoltRealtimeAction.STOP       # "0"
+IndevoltRealtimeAction.CHARGE     # "1"
+IndevoltRealtimeAction.DISCHARGE  # "2"
 ```
 
 ### `IndevoltEnergyMode`
