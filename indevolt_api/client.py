@@ -3,6 +3,7 @@
 import asyncio
 import json
 import logging
+from enum import IntEnum
 from typing import Any
 
 import aiohttp
@@ -15,6 +16,26 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class IndevoltData(dict[str, Any]):
+    def __getitem__(self, key: str | IntEnum) -> Any:
+        if isinstance(key, IntEnum):
+            key = str(int(key))
+
+        return super().__getitem__(key)
+
+    def get(self, key: str | IntEnum, default=None) -> Any:
+        if isinstance(key, IntEnum):
+            key = str(int(key))
+
+        return super().get(key, default)
+
+    def __contains__(self, key: object) -> bool:
+        if isinstance(key, IntEnum):
+            key = str(int(key))
+
+        return super().__contains__(key)
 
 
 class TimeOutException(Exception):
@@ -277,7 +298,8 @@ class IndevoltAPI:
 
         t_int = [int(item) for item in t]
 
-        return await self._request("Indevolt.GetData", {"t": t_int})
+        result = await self._request("Indevolt.GetData", {"t": t_int})
+        return IndevoltData(result)
 
     async def set_data(self, t: str | int, v: Any) -> bool:
         """Write/push data to the device.
