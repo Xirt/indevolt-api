@@ -67,6 +67,7 @@ class IndevoltGrid(IntEnum):
     METER_POWER_GEN2 = 11016
     VOLTAGE = 2600
     FREQUENCY = 2612
+    METER_CONNECTED = 7120
 
 
 class IndevoltBattery(IntEnum):
