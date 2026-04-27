@@ -413,7 +413,10 @@ class IndevoltAPI:
                 if "device" in data and "type" in data["device"]:
                     device_type = data["device"]["type"]
                     data["device"]["generation"] = (
-                        2 if device_type in ["CMS-SP2000", "CMS-SF2000"] else 1
+                        2
+                        if device_type
+                        in ["CMS-SP2000", "CMS-SF2000", "CMS-SF3000", "CMS-SF1200"]
+                        else 1
                     )
 
                 return data
