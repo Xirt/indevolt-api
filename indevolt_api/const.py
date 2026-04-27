@@ -1,4 +1,4 @@
-from enum import StrEnum
+from enum import IntEnum, StrEnum
 
 SET_REALTIME_ACTION = "47015"
 
@@ -8,21 +8,21 @@ DEVICE_LIMITS: dict[int, dict[str, int]] = {
 }
 
 
-class IndevoltRealtimeAction(StrEnum):
+class IndevoltRealtimeAction(IntEnum):
     """Actions for real-time control mode."""
 
-    STOP = "0"
-    CHARGE = "1"
-    DISCHARGE = "2"
+    STOP = 0
+    CHARGE = 1
+    DISCHARGE = 2
 
 
-class IndevoltEnergyMode(StrEnum):
+class IndevoltEnergyMode(IntEnum):
     """Energy mode values for the device."""
 
-    OUTDOOR_PORTABLE = "0"
-    SELF_CONSUMED_PRIORITIZED = "1"
-    REAL_TIME_CONTROL = "4"
-    CHARGE_DISCHARGE_SCHEDULE = "5"
+    OUTDOOR_PORTABLE = 0
+    SELF_CONSUMED_PRIORITIZED = 1
+    REAL_TIME_CONTROL = 4
+    CHARGE_DISCHARGE_SCHEDULE = 5
 
 
 class IndevoltConfig(StrEnum):
