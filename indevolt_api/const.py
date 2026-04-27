@@ -39,6 +39,7 @@ class IndevoltConfig(StrEnum):
 
     READ_ENERGY_MODE = "7101"
     READ_DISCHARGE_LIMIT = "6105"
+    READ_REALTIME_POWER_LIMIT = "6109"
     READ_MAX_AC_OUTPUT_POWER = "11011"
     READ_INVERTER_INPUT_LIMIT = "11009"
     READ_FEEDIN_POWER_LIMIT = "11010"
@@ -50,6 +51,7 @@ class IndevoltConfig(StrEnum):
 class IndevoltSystem(StrEnum):
     """Register keys for system-level AC power and energy."""
 
+    SERIAL_NUMBER = "0"
     OPERATING_MODE = "606"
     INPUT_POWER = "2101"
     OUTPUT_POWER = "2108"
