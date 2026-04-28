@@ -60,6 +60,7 @@ class IndevoltSystem(StrEnum):
     TOTAL_OUTPUT_ENERGY = "2104"
     OFF_GRID_OUTPUT_ENERGY = "2105"
     BYPASS_INPUT_ENERGY = "11034"
+    HEATING_STATE = "7121"
 
 
 class IndevoltGrid(StrEnum):
