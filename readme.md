@@ -53,9 +53,11 @@ asyncio.run(main())
 
 ## Device Discovery
 
-The library supports automatic discovery of Indevolt devices on your local network using UDP broadcast.
+The library supports two complementary discovery mechanisms.
 
-### Quick Discovery Example
+### Active Discovery
+
+Sends a UDP broadcast and collects replies from devices on the same network. Use `async_discover()` when you need devices immediately at startup.
 
 ```python
 import asyncio
@@ -63,8 +65,8 @@ import aiohttp
 from indevolt_api import async_discover, IndevoltAPI
 
 async def main():
-    # Discover devices on the network (overrides default 3-second timeout)
-    devices = await async_discover(timeout=3.0)
+    # Broadcast AT+IGDEVICEIP and wait for replies (default: 5 s)
+    devices = await async_discover()
 
     if not devices:
         print("No devices found")
@@ -83,15 +85,57 @@ async def main():
 asyncio.run(main())
 ```
 
-### Discovery Details
+How it works:
+1. Sends `ACTIVE_DISCOVERY_MESSAGE` (`AT+IGDEVICEIP`) via UDP broadcast to `255.255.255.255:8099`
+2. Devices respond to local port `ACTIVE_DISCOVERY_PORT` (`10000`) with their IP and optional metadata
+3. Returns a list of `DiscoveredDevice` objects
 
-The discovery mechanism:
+**Note:** UDP port `10000` must be available and not blocked by a firewall.
 
-1. Sends AT command `AT+IGDEVICEIP` via UDP broadcast to `255.255.255.255:8099`
-2. Indevolt devices on the same network respond to local port `10000` with their IP
-3. Returns a list of `DiscoveredDevice` objects with device information
+### Passive Discovery
 
-**Note:** Ensure your device and computer are on the same local network and that UDP port 10000 is available.
+Listens for unsolicited broadcasts that devices emit on their own. Use `PassiveDiscoveryProtocol` for long-running applications (e.g. Home Assistant integrations) that need to detect devices as they appear without polling.
+
+```python
+import asyncio
+from indevolt_api import (
+    PassiveDiscoveryProtocol,
+    PASSIVE_DISCOVERY_PORT,
+    PASSIVE_DISCOVERY_BIND_ADDR,
+)
+
+async def main():
+    seen: set[str] = set()
+
+    def on_device_discovered(host: str) -> None:
+        if host not in seen:
+            seen.add(host)
+            print(f"Device announced itself: {host}")
+
+    loop = asyncio.get_running_loop()
+    transport, _ = await loop.create_datagram_endpoint(
+        lambda: PassiveDiscoveryProtocol(on_device_discovered),
+        local_addr=(PASSIVE_DISCOVERY_BIND_ADDR, PASSIVE_DISCOVERY_PORT),
+    )
+
+    try:
+        await asyncio.Event().wait()  # run until cancelled
+    finally:
+        transport.close()
+
+asyncio.run(main())
+```
+
+How it works:
+1. Devices periodically broadcast a `BCF-D`-prefixed UDP packet on port `8099`
+2. `PassiveDiscoveryProtocol` filters packets by the `PASSIVE_DISCOVERY_MAGIC` prefix and invokes your callback with the sender's IP
+3. No outbound traffic is sent
+
+**Note:** Bind to `PASSIVE_DISCOVERY_BIND_ADDR` (`0.0.0.0`) so the socket accepts broadcasts on all interfaces.
+
+### Discovery Examples
+
+See [`examples/active_discovery_example.py`](examples/active_discovery_example.py) and [`examples/passive_discovery_example.py`](examples/passive_discovery_example.py) for runnable examples.
 
 ## API Reference
 
@@ -324,7 +368,7 @@ except SocBelowMinimumError as e:
     print(f"Target SOC {e.target_soc}% is below minimum {e.minimum_soc}%")
 ```
 
-### async_discover(timeout: float = 3.0) -> list[DiscoveredDevice]
+### `async_discover(timeout: float = 5.0) -> list[DiscoveredDevice]`
 
 Discover Indevolt devices on the local network using UDP broadcast.
 
@@ -480,6 +524,19 @@ from indevolt_api import SET_REALTIME_ACTION
 
 await api.set_data(SET_REALTIME_ACTION, [IndevoltRealtimeAction.CHARGE, 700, 80])
 ```
+
+### Discovery Constants
+
+All discovery-related constants are importable from `indevolt_api`.
+
+| Constant | Value | Description |
+|---|---|---|
+| `ACTIVE_DISCOVERY_PORT` | `10000` | Local port devices respond to |
+| `ACTIVE_DISCOVERY_MESSAGE` | `b"AT+IGDEVICEIP"` | Broadcast payload |
+| `ACTIVE_DISCOVERY_TIMEOUT` | `5.0` | Default `async_discover` timeout (seconds) |
+| `PASSIVE_DISCOVERY_PORT` | `8099` | Port to bind for passive listening |
+| `PASSIVE_DISCOVERY_MAGIC` | `b"BCF-D"` | Magic prefix of device broadcasts |
+| `PASSIVE_DISCOVERY_BIND_ADDR` | `"0.0.0.0"` | Bind address for the passive listener |
 
 ### `DEVICE_LIMITS`
 

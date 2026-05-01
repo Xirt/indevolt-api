@@ -1,8 +1,25 @@
 from enum import IntEnum, StrEnum
+from typing import Final
 
-SET_REALTIME_ACTION = "47015"
+# Active (solicited) discovery: send a broadcast then listen for replies
+ACTIVE_DISCOVERY_PORT: Final[int] = 10000
+ACTIVE_DISCOVERY_MESSAGE: Final[bytes] = b"AT+IGDEVICEIP"
+ACTIVE_DISCOVERY_TIMEOUT: Final[float] = 5.0
 
-DEVICE_LIMITS: dict[int, dict[str, int]] = {
+# Passive (unsolicited) discovery: listen for device-initiated broadcasts
+PASSIVE_DISCOVERY_PORT: Final[int] = 8099
+PASSIVE_DISCOVERY_MAGIC: Final[bytes] = b"BCF-D"
+PASSIVE_DISCOVERY_BIND_ADDR: Final[str] = "0.0.0.0"  # bind address for local_addr
+
+# Internal send-to tuple used by async_discover to broadcast the discovery message
+_ACTIVE_BROADCAST_ADDR: Final[tuple[str, int]] = (
+    "255.255.255.255",
+    PASSIVE_DISCOVERY_PORT,
+)
+
+SET_REALTIME_ACTION: Final[str] = "47015"
+
+DEVICE_LIMITS: Final[dict[int, dict[str, int]]] = {
     1: {"max_discharge_power": 800, "max_charge_power": 1200, "minimum_soc": 5},
     2: {"max_discharge_power": 2400, "max_charge_power": 2400, "minimum_soc": 5},
 }
