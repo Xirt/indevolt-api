@@ -410,15 +410,15 @@ if device.name:
 
 ## Exception Handling
 
-The library provides custom exceptions for API errors and limit violations.
+The library raises standard exceptions for network/HTTP errors, and custom exceptions for limit violations.
 
-### `APIException`
+### `TimeoutError`
 
-Raised when there's a client error during API communication (network errors, HTTP errors).
+Built-in Python exception raised when an API request exceeds the configured timeout (default: 10 seconds).
 
-### `TimeOutException`
+### `aiohttp.ClientError`
 
-Raised when an API request times out (default timeout: 10 seconds).
+Raised on network errors or non-200 HTTP responses during API communication.
 
 ### `PowerExceedsMaxError`
 
@@ -435,14 +435,15 @@ Raised by `check_charge_limits()` or `check_discharge_limits()` when the target 
 **Example:**
 
 ```python
-from indevolt_api import IndevoltAPI, APIException, TimeOutException
+import aiohttp
+from indevolt_api import IndevoltAPI
 
 try:
     data = await api.fetch_data("7101")
-except TimeOutException:
+except TimeoutError:
     print("Request timed out")
-except APIException as e:
-    print(f"API error: {e}")
+except aiohttp.ClientError as e:
+    print(f"Network/HTTP error: {e}")
 ```
 
 **Note:** You can adjust the timeout when creating the API client:

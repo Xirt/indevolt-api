@@ -1,14 +1,12 @@
 """Indevolt API - Python client for Indevolt devices."""
 
 from .client import (
-    APIException,
     ActiveDiscoveryProtocol,
     DiscoveredDevice,
     IndevoltAPI,
     PassiveDiscoveryProtocol,
     PowerExceedsMaxError,
     SocBelowMinimumError,
-    TimeOutException,
     async_discover,
 )
 from .const import (
@@ -29,11 +27,10 @@ from .const import (
     IndevoltSystem,
 )
 
-__version__ = "1.7.0"
+__version__ = "1.7.1"
 
 __all__ = [
     "IndevoltAPI",
-    "APIException",
     "ActiveDiscoveryProtocol",
     "DiscoveredDevice",
     "PassiveDiscoveryProtocol",
@@ -54,6 +51,5 @@ __all__ = [
     "IndevoltSystem",
     "PowerExceedsMaxError",
     "SocBelowMinimumError",
-    "TimeOutException",
     "async_discover",
 ]
