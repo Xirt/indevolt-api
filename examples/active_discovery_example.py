@@ -7,10 +7,9 @@ from indevolt_api import async_discover, IndevoltAPI, ACTIVE_DISCOVERY_TIMEOUT
 
 async def main():
     """Discover devices and connect to the first one found."""
-    print("Discovering Indevolt devices on the network (active broadcast)...")
-    print(f"(Waiting up to {ACTIVE_DISCOVERY_TIMEOUT:.0f} seconds for replies)\n")
+    print("Discovering Indevolt devices on the network...")
+    print("(This will take a few seconds)\n")
 
-    # Use the library default timeout; pass a value to override
     devices = await async_discover()
 
     if not devices:
@@ -18,9 +17,7 @@ async def main():
         print("\nTroubleshooting:")
         print("  1. Ensure your device is powered on and connected to WiFi")
         print("  2. Verify your computer and device are on the same network")
-        print(
-            "  3. Check that UDP port 10000 (ACTIVE_DISCOVERY_PORT) is not blocked by a firewall"
-        )
+        print("  3. Check that UDP port 10000 is not blocked by a firewall")
         return
 
     # Display discovered devices
