@@ -22,14 +22,6 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-class TimeOutException(Exception):
-    """Raised when an API call times out."""
-
-
-class APIException(Exception):
-    """Raised on client error during API call."""
-
-
 class PowerExceedsMaxError(Exception):
     """Raised when requested (dis)charge power exceeds the device maximum."""
 
@@ -293,14 +285,14 @@ class IndevoltAPI:
         try:
             async with self.session.post(url, timeout=self.timeout) as response:
                 if response.status != 200:
-                    raise APIException(f"HTTP status error: {response.status}")
+                    raise ClientError(f"HTTP status error: {response.status}")
                 return await response.json()
 
         except TimeoutError as err:
-            raise TimeOutException(f"{endpoint} Request timed out") from err
+            raise TimeoutError(f"{endpoint} Request timed out") from err
 
         except aiohttp.ClientError as err:
-            raise APIException(f"{endpoint} Network error: {err}") from err
+            raise ClientError(f"{endpoint} Network error: {err}") from err
 
     async def fetch_data(self, t: str | list[str]) -> dict[str, Any]:
         """Fetch raw JSON data from the device.
@@ -358,7 +350,7 @@ class IndevoltAPI:
                 SET_REALTIME_ACTION,
                 [IndevoltRealtimeAction.STOP, 0, 0],
             )
-        except (TimeOutException, ClientError, ConnectionError, OSError) as err:
+        except (TimeoutError, ClientError, ConnectionError, OSError) as err:
             _LOGGER.debug("stop command failed: %s", err)
             return False
 
@@ -373,7 +365,7 @@ class IndevoltAPI:
                 SET_REALTIME_ACTION,
                 [IndevoltRealtimeAction.CHARGE, power, target_soc],
             )
-        except (TimeOutException, ClientError, ConnectionError, OSError) as err:
+        except (TimeoutError, ClientError, ConnectionError, OSError) as err:
             _LOGGER.debug("charge command failed: %s", err)
             return False
 
@@ -388,7 +380,7 @@ class IndevoltAPI:
                 SET_REALTIME_ACTION,
                 [IndevoltRealtimeAction.DISCHARGE, power, target_soc],
             )
-        except (TimeOutException, ClientError, ConnectionError, OSError) as err:
+        except (TimeoutError, ClientError, ConnectionError, OSError) as err:
             _LOGGER.debug("discharge command failed: %s", err)
             return False
 
@@ -445,7 +437,7 @@ class IndevoltAPI:
         try:
             async with self.session.get(url, timeout=self.timeout) as response:
                 if response.status != 200:
-                    raise APIException(f"HTTP status error: {response.status}")
+                    raise ClientError(f"HTTP status error: {response.status}")
                 data = await response.json()
 
                 # Enrich response with device generation
@@ -467,7 +459,7 @@ class IndevoltAPI:
                 return data
 
         except TimeoutError as err:
-            raise TimeOutException("Sys.GetConfig Request timed out") from err
+            raise TimeoutError("Sys.GetConfig Request timed out") from err
 
         except aiohttp.ClientError as err:
-            raise APIException(f"Sys.GetConfig Network error: {err}") from err
+            raise ClientError(f"Sys.GetConfig Network error: {err}") from err
