@@ -288,8 +288,8 @@ class IndevoltAPI:
                     raise ClientError(f"HTTP status error: {response.status}")
                 return await response.json()
 
-        except TimeoutError as err:
-            raise TimeoutError(f"{endpoint} Request timed out") from err
+        except TimeoutError:
+            raise
 
         except aiohttp.ClientError as err:
             raise ClientError(f"{endpoint} Network error: {err}") from err
@@ -334,25 +334,26 @@ class IndevoltAPI:
         t_int = int(t)
         v_int = [int(item) for item in v]
 
-        response = await self._request(
-            "Indevolt.SetData", {"f": 16, "t": t_int, "v": v_int}
-        )
+        try:
+            response = await self._request(
+                "Indevolt.SetData", {"f": 16, "t": t_int, "v": v_int}
+            )
 
-        return bool(response.get("result", False))
+            return bool(response.get("result", False))
+
+        except (OSError, ClientError, ValueError) as err:
+            _LOGGER.debug("SetData request failed for t=%s, v=%s: %s", t, v, err)
+            return False
 
     async def stop(self) -> bool:
         """Stop any active real-time charge or discharge action.
 
         Returns True on success, False if the command was rejected.
         """
-        try:
-            return await self.set_data(
-                SET_REALTIME_ACTION,
-                [IndevoltRealtimeAction.STOP, 0, 0],
-            )
-        except (TimeoutError, ClientError, ConnectionError, OSError) as err:
-            _LOGGER.debug("stop command failed: %s", err)
-            return False
+        return await self.set_data(
+            SET_REALTIME_ACTION,
+            [IndevoltRealtimeAction.STOP, 0, 0],
+        )
 
     async def charge(self, power: int, target_soc: int) -> bool:
         """Send a real-time charge command to the device.
@@ -360,14 +361,10 @@ class IndevoltAPI:
         Returns True on success, False if the command was rejected.
         Raises ValueError if power or target_soc are out of range.
         """
-        try:
-            return await self.set_data(
-                SET_REALTIME_ACTION,
-                [IndevoltRealtimeAction.CHARGE, power, target_soc],
-            )
-        except (TimeoutError, ClientError, ConnectionError, OSError) as err:
-            _LOGGER.debug("charge command failed: %s", err)
-            return False
+        return await self.set_data(
+            SET_REALTIME_ACTION,
+            [IndevoltRealtimeAction.CHARGE, power, target_soc],
+        )
 
     async def discharge(self, power: int, target_soc: int) -> bool:
         """Send a real-time discharge command to the device.
@@ -375,14 +372,10 @@ class IndevoltAPI:
         Returns True on success, False if the command was rejected.
         Raises ValueError if power or target_soc are out of range.
         """
-        try:
-            return await self.set_data(
-                SET_REALTIME_ACTION,
-                [IndevoltRealtimeAction.DISCHARGE, power, target_soc],
-            )
-        except (TimeoutError, ClientError, ConnectionError, OSError) as err:
-            _LOGGER.debug("discharge command failed: %s", err)
-            return False
+        return await self.set_data(
+            SET_REALTIME_ACTION,
+            [IndevoltRealtimeAction.DISCHARGE, power, target_soc],
+        )
 
     def check_charge_limits(self, power: int, target_soc: int, generation: int) -> None:
         """Check that charge parameters do not exceed device limits.

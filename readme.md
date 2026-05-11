@@ -303,6 +303,11 @@ Get system configuration from the device.
 
 - Dictionary with device system configuration
 
+**Raises:**
+
+- `TimeoutError`: If the request exceeds the configured timeout
+- `aiohttp.ClientError`: On network errors or non-200 HTTP responses
+
 **Example:**
 
 ```python
@@ -374,7 +379,7 @@ Discover Indevolt devices on the local network using UDP broadcast.
 
 **Parameters:**
 
-- `timeout` (float): Discovery timeout in seconds (default: 3.0)
+- `timeout` (float): Discovery timeout in seconds (default: 5.0)
 
 **Returns:**
 
@@ -410,15 +415,19 @@ if device.name:
 
 ## Exception Handling
 
-The library raises standard exceptions for network/HTTP errors, and custom exceptions for limit violations.
+The library has two exception-handling behaviours depending on the method:
+
+**Methods that raise** (`fetch_data`, `get_config`): network and HTTP errors propagate to the caller.
+
+**Methods that return `False`** (`set_data`, `stop`, `charge`, `discharge`): all network, HTTP, and decoding errors are caught internally and logged at DEBUG level. These methods never raise on communication failure.
 
 ### `TimeoutError`
 
-Built-in Python exception raised when an API request exceeds the configured timeout (default: 10 seconds).
+Built-in Python exception raised by `fetch_data` and `get_config` when a request exceeds the configured timeout (default: 10 seconds). Not raised by `set_data` or the convenience helpers.
 
 ### `aiohttp.ClientError`
 
-Raised on network errors or non-200 HTTP responses during API communication.
+Raised by `fetch_data` and `get_config` on network errors or non-200 HTTP responses. Not raised by `set_data` or the convenience helpers.
 
 ### `PowerExceedsMaxError`
 
@@ -438,12 +447,18 @@ Raised by `check_charge_limits()` or `check_discharge_limits()` when the target 
 import aiohttp
 from indevolt_api import IndevoltAPI
 
+# fetch_data and get_config raise on error
 try:
     data = await api.fetch_data("7101")
 except TimeoutError:
     print("Request timed out")
 except aiohttp.ClientError as e:
     print(f"Network/HTTP error: {e}")
+
+# set_data and helpers return False on error — no try/except needed
+succeeded = await api.set_data(IndevoltConfig.WRITE_DISCHARGE_LIMIT, 50)
+if not succeeded:
+    print("Command failed")
 ```
 
 **Note:** You can adjust the timeout when creating the API client:
