@@ -104,14 +104,15 @@ class IndevoltGrid(StrEnum):
 class IndevoltBattery(StrEnum):
     """Register keys for battery system parameters."""
 
-    POWER = "6000" # Deprecated, replaced with DC_POWER
+    POWER = "6000" # Deprecated, replaced with DC_POWER  
     CHARGE_DISCHARGE_STATE = "6001"
     SOC = "6002"
+    RATED_CAPACITY = "142"
     DAILY_CHARGING_ENERGY = "6004"
     DAILY_DISCHARGING_ENERGY = "6005"
     TOTAL_CHARGING_ENERGY = "6006"
     TOTAL_DISCHARGING_ENERGY = "6007"
-    RATED_CAPACITY_GEN2 = "142"
+    RATED_CAPACITY_GEN2 = "142" # Deprecated, replaced with RATED_CAPACITY
     DC_VOLTAGE = "6100"
     DC_CURRENT = "6101"
     DC_POWER = "6000"
