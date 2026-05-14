@@ -33,6 +33,14 @@ class IndevoltRealtimeAction(IntEnum):
     DISCHARGE = 2
 
 
+class IndevoltRealtimeState(IntEnum):
+    """States for real-time control mode."""
+
+    STANDBY = 1000
+    CHARGING = 1001
+    DISCHARGING = 1002
+
+
 class IndevoltEnergyMode(IntEnum):
     """Energy mode values for the device."""
 
@@ -40,6 +48,14 @@ class IndevoltEnergyMode(IntEnum):
     SELF_CONSUMED_PRIORITIZED = 1
     REAL_TIME_CONTROL = 4
     CHARGE_DISCHARGE_SCHEDULE = 5
+
+
+class IndevoltOperationgModes(IntEnum):
+    """Operating mode values for the device."""
+
+    MAIN = 1000
+    SUB = 1001
+    STANDALONE = 1002
 
 
 class IndevoltConfig(StrEnum):
