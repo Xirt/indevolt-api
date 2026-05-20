@@ -50,7 +50,7 @@ class IndevoltEnergyMode(IntEnum):
     CHARGE_DISCHARGE_SCHEDULE = 5
 
 
-class IndevoltOperationgModes(IntEnum):
+class IndevoltOperatingModes(IntEnum):
     """Operating mode values for the device."""
 
     MAIN = 1000
