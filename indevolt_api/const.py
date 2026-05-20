@@ -72,8 +72,8 @@ class IndevoltSystem(StrEnum):
 
     SERIAL_NUMBER = "0"
     OPERATING_MODE = "606"
-    INPUT_POWER = "2101" # Deprecated, replaced with AC_TOTAL_INPUT_POWER
-    OUTPUT_POWER = "2108" # Deprecated, replaced with AC_TOTAL_OUTPUT_POWER
+    INPUT_POWER = "2101"  # Deprecated, replaced with AC_TOTAL_INPUT_POWER
+    OUTPUT_POWER = "2108"  # Deprecated, replaced with AC_TOTAL_OUTPUT_POWER
     BYPASS_POWER = "667"
     TOTAL_INPUT_ENERGY = "2107"
     TOTAL_OUTPUT_ENERGY = "2104"
@@ -104,7 +104,7 @@ class IndevoltGrid(StrEnum):
 class IndevoltBattery(StrEnum):
     """Register keys for battery system parameters."""
 
-    POWER = "6000" # Deprecated, replaced with DC_POWER  
+    POWER = "6000"  # Deprecated, replaced with DC_POWER
     CHARGE_DISCHARGE_STATE = "6001"
     SOC = "6002"
     RATED_CAPACITY = "142"
@@ -112,7 +112,7 @@ class IndevoltBattery(StrEnum):
     DAILY_DISCHARGING_ENERGY = "6005"
     TOTAL_CHARGING_ENERGY = "6006"
     TOTAL_DISCHARGING_ENERGY = "6007"
-    RATED_CAPACITY_GEN2 = "142" # Deprecated, replaced with RATED_CAPACITY
+    RATED_CAPACITY_GEN2 = "142"  # Deprecated, replaced with RATED_CAPACITY
     DC_VOLTAGE = "6100"
     DC_CURRENT = "6101"
     DC_POWER = "6000"
@@ -126,53 +126,66 @@ class IndevoltBattery(StrEnum):
 
     GEN_2_CYCLE_COUNT = "9003"
     GEN_2_TRANSFORMER_TEMPERATURE = "11005"
-    
-    MAIN_SERIAL_NUMBER = "9008"
-    MAIN_SOC = "9000"
+
+    # Main / Battery 1
+    MAIN_SERIAL_NUMBER = "9008"  # Also available in key 150
+    MAIN_SOC = "9000"  # Also available in key 6009
+    MAIN_SOH = "9002"
     MAIN_TEMPERATURE = "9012"
     MAIN_VOLTAGE = "9004"
     MAIN_CURRENT = "9013"
     MAIN_HEATING_STATE = "9079"
+    MAIN_MOS_TEMPERATURE = "11042"
 
+    # Extension pack 1 / Battery 2
     PACK_1_SERIAL_NUMBER = "9032"
     PACK_1_SOC = "9016"
+    PACK_1_SOH = "9018"
     PACK_1_TEMPERATURE = "9030"
     PACK_1_VOLTAGE = "9020"
     PACK_1_CURRENT = "19173"
     PACK_1_HEATING_STATE = "9096"
-    PACK_1_MOS_TEMPERATURE = "11042"
+    PACK_1_MOS_TEMPERATURE = "9085"
 
+    # Extension pack 2 / Battery 3
     PACK_2_SERIAL_NUMBER = "9051"
     PACK_2_SOC = "9035"
+    PACK_2_SOH = "9037"
     PACK_2_TEMPERATURE = "9049"
     PACK_2_VOLTAGE = "9039"
     PACK_2_CURRENT = "19174"
     PACK_2_HEATING_STATE = "9112"
-    PACK_2_MOS_TEMPERATURE = "9085"
+    PACK_2_MOS_TEMPERATURE = "9101"
 
+    # Extension pack 3 / Battery 4
     PACK_3_SERIAL_NUMBER = "9070"
     PACK_3_SOC = "9054"
+    PACK_3_SOH = "9056"
     PACK_3_TEMPERATURE = "9068"
     PACK_3_VOLTAGE = "9058"
     PACK_3_CURRENT = "19175"
     PACK_3_HEATING_STATE = "9128"
-    PACK_3_MOS_TEMPERATURE = "9101"
+    PACK_3_MOS_TEMPERATURE = "9117"
 
+    # Extension pack 4 / Battery 5
     PACK_4_SERIAL_NUMBER = "9165"
     PACK_4_SOC = "9149"
+    PACK_4_SOH = "9151"
     PACK_4_TEMPERATURE = "9163"
     PACK_4_VOLTAGE = "9153"
     PACK_4_CURRENT = "19176"
     PACK_4_HEATING_STATE = "9144"
-    PACK_4_MOS_TEMPERATURE = "9117"
+    PACK_4_MOS_TEMPERATURE = "9133"
 
+    # Extension pack 5 / Battery 6
     PACK_5_SERIAL_NUMBER = "9218"
     PACK_5_SOC = "9202"
+    PACK_5_SOH = "9204"
     PACK_5_TEMPERATURE = "9216"
     PACK_5_VOLTAGE = "9206"
     PACK_5_CURRENT = "19177"
     PACK_5_HEATING_STATE = "9279"
-    PACK_5_MOS_TEMPERATURE = "9133"
+    PACK_5_MOS_TEMPERATURE = "9270"
 
 
 class IndevoltSolar(StrEnum):
