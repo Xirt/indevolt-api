@@ -140,13 +140,14 @@ class IndevoltBattery(StrEnum):
     GEN_1_MOS_TEMPERATURE_CHARGE = "7638"
     GEN_1_MOS_TEMPERATURE_DISCHARGE = "7639"
 
-    GEN_2_CYCLE_COUNT = "9003"
+    GEN_2_CYCLE_COUNT = "8646"
     GEN_2_TRANSFORMER_TEMPERATURE = "11005"
 
     # Main / Battery 1
     MAIN_SERIAL_NUMBER = "9008"  # Also available in key 150
     MAIN_SOC = "9000"  # Also available in key 6009
     MAIN_SOH = "9002"
+    MAIN_CYCLES = "9003"
     MAIN_TEMPERATURE = "9012"
     MAIN_VOLTAGE = "9004"
     MAIN_CURRENT = "9013"
@@ -157,6 +158,7 @@ class IndevoltBattery(StrEnum):
     PACK_1_SERIAL_NUMBER = "9032"
     PACK_1_SOC = "9016"
     PACK_1_SOH = "9018"
+    PACK_1_CYCLES = "9019"
     PACK_1_TEMPERATURE = "9030"
     PACK_1_VOLTAGE = "9020"
     PACK_1_CURRENT = "19173"
@@ -167,6 +169,7 @@ class IndevoltBattery(StrEnum):
     PACK_2_SERIAL_NUMBER = "9051"
     PACK_2_SOC = "9035"
     PACK_2_SOH = "9037"
+    PACK_2_CYCLES = "9038"
     PACK_2_TEMPERATURE = "9049"
     PACK_2_VOLTAGE = "9039"
     PACK_2_CURRENT = "19174"
@@ -177,6 +180,7 @@ class IndevoltBattery(StrEnum):
     PACK_3_SERIAL_NUMBER = "9070"
     PACK_3_SOC = "9054"
     PACK_3_SOH = "9056"
+    PACK_3_CYCLES = "9057"
     PACK_3_TEMPERATURE = "9068"
     PACK_3_VOLTAGE = "9058"
     PACK_3_CURRENT = "19175"
@@ -187,6 +191,7 @@ class IndevoltBattery(StrEnum):
     PACK_4_SERIAL_NUMBER = "9165"
     PACK_4_SOC = "9149"
     PACK_4_SOH = "9151"
+    PACK_4_CYCLES = "9152"
     PACK_4_TEMPERATURE = "9163"
     PACK_4_VOLTAGE = "9153"
     PACK_4_CURRENT = "19176"
@@ -197,6 +202,7 @@ class IndevoltBattery(StrEnum):
     PACK_5_SERIAL_NUMBER = "9218"
     PACK_5_SOC = "9202"
     PACK_5_SOH = "9204"
+    PACK_5_CYCLES = "9205"
     PACK_5_TEMPERATURE = "9216"
     PACK_5_VOLTAGE = "9206"
     PACK_5_CURRENT = "19177"
