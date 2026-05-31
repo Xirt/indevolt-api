@@ -151,7 +151,7 @@ class IndevoltBattery(StrEnum):
     MAIN_TEMPERATURE = "9012"
     MAIN_VOLTAGE = "9004"
     MAIN_CURRENT = "9013"
-    MAIN_HEATING_STATE = "9079"
+    MAIN_HEATING_STATE = "9080"
     MAIN_MOS_TEMPERATURE = "11042"
 
     # Extension pack 1 / Battery 2
