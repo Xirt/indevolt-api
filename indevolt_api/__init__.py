@@ -23,11 +23,12 @@ from .const import (
     IndevoltEnergyMode,
     IndevoltGrid,
     IndevoltRealtimeAction,
+    IndevoltRealtimeState,
     IndevoltSolar,
     IndevoltSystem,
 )
 
-__version__ = "1.8.3"
+__version__ = "1.8.4"
 
 __all__ = [
     "IndevoltAPI",
@@ -47,6 +48,7 @@ __all__ = [
     "IndevoltEnergyMode",
     "IndevoltGrid",
     "IndevoltRealtimeAction",
+    "IndevoltRealtimeState",
     "IndevoltSolar",
     "IndevoltSystem",
     "PowerExceedsMaxError",
