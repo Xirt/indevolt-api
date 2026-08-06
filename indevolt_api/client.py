@@ -283,7 +283,11 @@ class IndevoltAPI:
         url = f"{self.base_url}/{endpoint}?config={config_param}"
 
         try:
-            async with self.session.post(url, timeout=self.timeout) as response:
+            async with self.session.post(
+                url,
+                timeout=self.timeout,
+                headers={"Connection": "close"},
+            ) as response:
                 if response.status != 200:
                     raise ClientError(f"HTTP status error: {response.status}")
                 return await response.json()
@@ -428,7 +432,13 @@ class IndevoltAPI:
         url = f"{self.base_url}/Sys.GetConfig"
 
         try:
-            async with self.session.get(url, timeout=self.timeout) as response:
+            async with self.session.get(
+                url,
+                timeout=self.timeout,
+                headers={
+                    "Connection": "close"
+                },  # prevent keep-alive reuse on embedded firmware
+            ) as response:
                 if response.status != 200:
                     raise ClientError(f"HTTP status error: {response.status}")
                 data = await response.json()
