@@ -21,7 +21,7 @@ SET_REALTIME_ACTION: Final[str] = "47015"
 
 DEVICE_LIMITS: Final[dict[int, dict[str, int]]] = {
     1: {"max_discharge_power": 800, "max_charge_power": 1200, "minimum_soc": 5},
-    2: {"max_discharge_power": 2400, "max_charge_power": 2400, "minimum_soc": 5},
+    2: {"max_discharge_power": 10800, "max_charge_power": 10800, "minimum_soc": 5},
 }
 
 
