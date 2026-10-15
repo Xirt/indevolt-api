@@ -1,4 +1,4 @@
-"""Scenarios for the existing generation-specific parameter checks."""
+"""Scenarios for generation-specific charge and discharge parameter checks."""
 
 from collections.abc import Callable
 

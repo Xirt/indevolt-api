@@ -1,4 +1,4 @@
-"""Scenarios for initialization followed by repeated batched reads."""
+"""Scenarios for initializing a device and repeatedly polling data in batches."""
 
 import json
 
@@ -13,7 +13,7 @@ from indevolt_api import (
     IndevoltSystem,
 )
 
-from .helpers import MockDevice
+from ..helpers import MockDevice
 
 pytestmark = pytest.mark.asyncio
 

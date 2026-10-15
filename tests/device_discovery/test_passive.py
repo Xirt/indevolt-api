@@ -1,4 +1,4 @@
-"""Scenarios for unsolicited device broadcasts."""
+"""Scenarios for discovering devices through unsolicited broadcasts."""
 
 import pytest
 

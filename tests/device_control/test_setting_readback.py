@@ -1,4 +1,4 @@
-"""Scenarios for writing a setting and reading its corresponding status point."""
+"""Scenarios for writing device settings and reading their corresponding status."""
 
 import json
 
@@ -6,7 +6,7 @@ import pytest
 
 from indevolt_api import IndevoltAPI, IndevoltConfig, IndevoltEnergyMode
 
-from .helpers import MockDevice
+from ..helpers import MockDevice
 
 pytestmark = pytest.mark.asyncio
 

@@ -7,7 +7,7 @@ import pytest
 
 from indevolt_api import IndevoltAPI
 
-from .helpers import MockDevice
+from ..helpers import MockDevice
 
 pytestmark = pytest.mark.asyncio
 

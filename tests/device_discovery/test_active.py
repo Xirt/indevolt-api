@@ -1,55 +1,15 @@
-"""Scenarios for broadcast discovery orchestration and cleanup."""
+"""Scenarios for actively finding devices and releasing discovery resources."""
 
 import asyncio
-from collections.abc import Callable
-from dataclasses import dataclass
-from unittest.mock import AsyncMock, Mock, call
+from unittest.mock import call
 
 import pytest
-import pytest_asyncio
 
-from indevolt_api import ActiveDiscoveryProtocol, async_discover
+from indevolt_api import async_discover
+
+from .helpers import DiscoveryNetwork
 
 pytestmark = pytest.mark.asyncio
-
-
-@dataclass
-class DiscoveryNetwork:
-    """Controlled UDP transport, address resolution and discovery wait."""
-
-    endpoint: AsyncMock
-    transport: Mock
-    protocol: ActiveDiscoveryProtocol
-    wait: AsyncMock
-    resolve: Mock
-
-
-@pytest_asyncio.fixture
-async def network(monkeypatch: pytest.MonkeyPatch) -> DiscoveryNetwork:
-    """Replace network boundaries while keeping the discovery protocol real."""
-    network = DiscoveryNetwork(
-        endpoint=AsyncMock(),
-        transport=Mock(spec=asyncio.DatagramTransport),
-        protocol=ActiveDiscoveryProtocol(),
-        wait=AsyncMock(),
-        resolve=Mock(return_value=("test-host", [], [])),
-    )
-
-    def open_endpoint(
-        factory: Callable[[], ActiveDiscoveryProtocol], **options: object
-    ) -> tuple[Mock, ActiveDiscoveryProtocol]:
-        network.protocol = factory()
-        network.protocol.connection_made(network.transport)
-        return network.transport, network.protocol
-
-    network.endpoint.side_effect = open_endpoint
-    monkeypatch.setattr(
-        asyncio.get_running_loop(), "create_datagram_endpoint", network.endpoint
-    )
-    monkeypatch.setattr("indevolt_api.client.asyncio.sleep", network.wait)
-    monkeypatch.setattr("socket.gethostname", lambda: "test-host")
-    monkeypatch.setattr("socket.gethostbyname_ex", network.resolve)
-    return network
 
 
 async def test_discovery_collects_replies(network: DiscoveryNetwork) -> None:

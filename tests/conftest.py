@@ -1,9 +1,7 @@
-"""Fixtures for isolated HTTP and non-networked client tests."""
+"""Shared HTTP devices and caller-owned sessions for SDK scenarios."""
 
-import json
 from collections.abc import AsyncIterator
 from contextlib import AsyncExitStack
-from unittest.mock import Mock
 
 import pytest
 import pytest_asyncio
@@ -12,7 +10,7 @@ from aiohttp.test_utils import TestServer
 
 from indevolt_api import IndevoltAPI
 
-from .helpers import DeviceFactory, MockDevice, RecordedRequest
+from .helpers import DeviceFactory, MockDevice
 
 
 @pytest_asyncio.fixture
@@ -49,26 +47,3 @@ async def session() -> AsyncIterator[ClientSession]:
 def api(device: MockDevice, session: ClientSession) -> IndevoltAPI:
     """Point the real client at the simulated HTTP device."""
     return IndevoltAPI(device.host, device.port, session)
-
-
-@pytest.fixture
-def api_without_network() -> IndevoltAPI:
-    """Provide a client for the synchronous parameter checks."""
-    return IndevoltAPI("192.0.2.1", 8080, Mock(spec=ClientSession))
-
-
-@pytest.fixture
-def point_values(device: MockDevice) -> dict[str, int]:
-    """Serve only the requested points from a mutable device snapshot."""
-    values: dict[str, int] = {}
-
-    def respond(request: RecordedRequest) -> web.Response:
-        if request.path == "/rpc/Sys.GetConfig":
-            return web.json_response(device.response_data, status=device.status)
-        points = json.loads(request.query["config"])["t"]
-        return web.json_response(
-            {str(point): values[str(point)] for point in points}, status=device.status
-        )
-
-    device.responder = respond
-    return values

@@ -1,51 +1,17 @@
-"""Scenarios for system configuration and hardware generation detection."""
+"""Scenarios for reading device information, incomplete metadata and failures."""
 
 import asyncio
 import json
 from unittest.mock import patch
 
 import pytest
-from aiohttp import ClientConnectionError, ClientError, ClientSession, ContentTypeError
+from aiohttp import ClientConnectionError, ClientError, ContentTypeError
 
-from indevolt_api import DiscoveredDevice, IndevoltAPI
+from indevolt_api import IndevoltAPI
 
-from .helpers import MockDevice
+from ..helpers import MockDevice
 
 pytestmark = pytest.mark.asyncio
-
-
-@pytest.mark.parametrize(
-    ("model", "generation"),
-    [
-        pytest.param("CMS-SP2000", 2, id="sp2000"),
-        pytest.param("CMS-SF2000", 2, id="sf2000"),
-        pytest.param("CMS-SP3000", 2, id="sp3000"),
-        pytest.param("CMS-SF3000", 2, id="sf3000"),
-        pytest.param("CMS-SF1200", 2, id="sf1200"),
-        pytest.param("BK1600", 1, id="gen1"),
-        pytest.param("unknown-model", 1, id="unknown-currently-gen1"),
-    ],
-)
-async def test_get_config_detects_generation(
-    api: IndevoltAPI, device: MockDevice, model: str, generation: int
-) -> None:
-    """The current model mapping enriches configuration without losing fields."""
-    device.response_data = {
-        "device": {"type": model, "sn": "test-serial", "generation": 99},
-        "network": {"ip": "192.0.2.1"},
-    }
-
-    assert await api.get_config() == {
-        "device": {"type": model, "sn": "test-serial", "generation": generation},
-        "network": {"ip": "192.0.2.1"},
-    }
-
-    (request,) = device.requests
-    assert request.method == "GET"
-    assert request.path == "/rpc/Sys.GetConfig"
-    assert request.query == {}
-    assert request.headers["Connection"] == "close"
-    assert request.body == b""
 
 
 @pytest.mark.parametrize(
@@ -63,32 +29,6 @@ async def test_config_without_model_is_returned_unchanged(
     device.response_data = config
 
     assert await api.get_config() == config
-
-
-@pytest.mark.parametrize(
-    ("options", "expected_timeout"),
-    [
-        pytest.param({}, 10.0, id="default"),
-        pytest.param({"timeout": 2.5}, 2.5, id="custom"),
-    ],
-)
-async def test_client_from_discovered_device(
-    device: MockDevice,
-    session: ClientSession,
-    options: dict[str, float],
-    expected_timeout: float,
-) -> None:
-    """Discovered addresses and the timeout configure a usable HTTP client."""
-    discovered = DiscoveredDevice(device.host, device.port, name="test-device")
-    api = IndevoltAPI.from_discovered_device(discovered, session, **options)
-
-    assert await api.get_config() == {}
-
-    (request,) = device.requests
-    assert request.headers["Host"] == f"{device.host}:{device.port}"
-    assert api.session is session
-    assert api.timeout.total == expected_timeout
-    assert session.closed is False
 
 
 @pytest.mark.parametrize("status", [404, 500], ids=["not-found", "server-error"])

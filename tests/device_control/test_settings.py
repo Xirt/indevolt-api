@@ -1,4 +1,4 @@
-"""Scenarios for writing device data and interpreting acknowledgements."""
+"""Scenarios for writing device settings and interpreting acknowledgements."""
 
 import asyncio
 import json
@@ -9,7 +9,7 @@ from aiohttp import ClientConnectionError
 
 from indevolt_api import IndevoltAPI, IndevoltConfig, IndevoltEnergyMode
 
-from .helpers import MockDevice
+from ..helpers import MockDevice
 
 pytestmark = pytest.mark.asyncio
 

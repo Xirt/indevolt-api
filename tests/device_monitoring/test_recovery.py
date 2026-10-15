@@ -1,4 +1,4 @@
-"""Scenarios for recovering from a failed batch on the same client."""
+"""Scenarios for resuming device polling after a failed batch."""
 
 import json
 
@@ -7,7 +7,7 @@ from aiohttp import ClientError, ClientSession
 
 from indevolt_api import IndevoltAPI, IndevoltBattery
 
-from .helpers import MockDevice
+from ..helpers import MockDevice
 
 pytestmark = pytest.mark.asyncio
 
