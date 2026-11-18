@@ -28,7 +28,7 @@ from .const import (
     IndevoltSystem,
 )
 
-__version__ = "1.8.8"
+__version__ = "1.9.0"
 
 __all__ = [
     "IndevoltAPI",

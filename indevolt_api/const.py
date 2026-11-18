@@ -69,6 +69,7 @@ class IndevoltConfig(StrEnum):
     WRITE_GRID_CHARGING = "1143"
     WRITE_LIGHT = "7265"
     WRITE_BYPASS = "7266"
+    WRITE_CLUSTER_MAX_AC_OUTPUT_POWER = "7243"
 
     READ_ENERGY_MODE = "7101"
     READ_DISCHARGE_LIMIT = "6105"
@@ -82,6 +83,7 @@ class IndevoltConfig(StrEnum):
     READ_GRID_CHARGING = "2618"
     READ_LIGHT = "7171"
     READ_BYPASS = "680"
+    READ_CLUSTER_MAX_AC_OUTPUT_POWER = "2268"
 
 
 class IndevoltSystem(StrEnum):
